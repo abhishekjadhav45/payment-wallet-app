@@ -14,7 +14,7 @@
 	<name>Payment Wallet System</name>
 	<description>Mini Paytm-like fintech wallet with transactions, JWT auth, and MySQL</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>22</java.version>  <!-- Updated to Java 22 -->
 	</properties>
 	<dependencies>
 		<!-- Core Spring Boot -->
@@ -74,6 +74,13 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
+		</dependency>
+
+		<!-- SWAGGER/OpenAPI - FIXED VERSION -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>  <!-- Latest stable -->
 		</dependency>
 
 		<!-- Test -->
