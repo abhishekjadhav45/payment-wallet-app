@@ -1,60 +1,49 @@
 package com.abhi.wallet.controller;
 
-import com.abhi.wallet.dto.WalletResponse;
+import com.abhi.wallet.dto.TransactionResponse;
+import com.abhi.wallet.service.WalletService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
+import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/wallet")
+@RequiredArgsConstructor
 public class WalletController {
 
-    private double currentBalance = 1000.00;
+    private final WalletService walletService;
 
     @GetMapping("/balance")
-    public ResponseEntity<WalletResponse> getBalance() {
-        return ResponseEntity.ok(new WalletResponse(currentBalance, "INR", "Wallet balance retrieved successfully"));
+    public ResponseEntity<BigDecimal> getBalance(@RequestParam String email) {
+        BigDecimal balance = walletService.getBalance(email);
+        return ResponseEntity.ok(balance);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<WalletResponse> addMoney(HttpServletRequest request) {
-        try {
-            BufferedReader reader = request.getReader();
-            String line, body = "";
-            while ((line = reader.readLine()) != null) {
-                body += line;
-            }
-            double amount = 500.0; // Default ₹500
-            if (body.contains("500")) amount = 500.0;
-            currentBalance += amount;
-            return ResponseEntity.ok(new WalletResponse(currentBalance, "INR", "Money added: ₹" + amount));
-        } catch (Exception e) {
-            currentBalance += 500.0;
-            return ResponseEntity.ok(new WalletResponse(currentBalance, "INR", "Money added: ₹500 (fallback)"));
-        }
+    public ResponseEntity<String> addMoney(
+            @RequestParam String email,
+            @RequestParam BigDecimal amount,
+            @RequestParam String description) {
+        String result = walletService.addMoney(email, amount, description);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/spend")
-    public ResponseEntity<WalletResponse> spendMoney(HttpServletRequest request) {
-        try {
-            BufferedReader reader = request.getReader();
-            String line, body = "";
-            while ((line = reader.readLine()) != null) {
-                body += line;
-            }
-            double amount = 200.0; // Default ₹200
-            if (body.contains("200")) amount = 200.0;
-            if (currentBalance >= amount) {
-                currentBalance -= amount;
-                return ResponseEntity.ok(new WalletResponse(currentBalance, "INR", "Money spent: ₹" + amount));
-            }
-            return ResponseEntity.ok(new WalletResponse(currentBalance, "INR", "Insufficient balance"));
-        } catch (Exception e) {
-            currentBalance -= 200.0;
-            if (currentBalance < 0) currentBalance = 0;
-            return ResponseEntity.ok(new WalletResponse(currentBalance, "INR", "Money spent: ₹200 (fallback)"));
-        }
+    public ResponseEntity<String> spendMoney(
+            @RequestParam String email,
+            @RequestParam BigDecimal amount,
+            @RequestParam String description) {
+        String result = walletService.spendMoney(email, amount, description);
+        return ResponseEntity.ok(result);
+    }
+
+    // 🔥 DAY 6: Transaction History
+    @GetMapping("/history")
+    public ResponseEntity<List<TransactionResponse>> getTransactionHistory(@RequestParam String email) {
+        List<TransactionResponse> history = walletService.getTransactionHistory(email);
+        return ResponseEntity.ok(history);
     }
 }
